@@ -1,0 +1,250 @@
+<template>
+  <div>
+    <catr-top></catr-top>
+    <div class="backf5 box">
+      <div class="containerAuto back3f container">
+        <div class="font18 margin-b10">收货地址</div>
+        <div class="flex-w">
+          <div
+            class="address"
+            @mouseenter="mouseenter"
+            @mouseleave="mouseleave"
+          >
+            <div class="name">
+              <div class="font18 margin-b10">小丁</div>
+              <div>18281236375</div>
+              <div>四川成都市锦江区春熙路街道</div>
+              <div>新时代广场</div>
+            </div>
+            <div class="Themecolor edit" v-if="show">修改</div>
+          </div>
+          <!-- 新增地址 -->
+          <div class="address-item flex-dji color75" @click="add">
+            <div>
+              <i class="iconfont icon-tianjia font30 color75"></i>
+            </div>
+            <div>添加新地址</div>
+          </div>
+        </div>
+        <!-- 商品 -->
+        <div class="font18">商品及优惠券</div>
+        <div v-for="(item, index) in goods" :key="index" class="flex goods">
+          <div class="flex2 flex-a">
+            <div>
+              <img :src="item.goods.cover" class="imgcover" />
+            </div>
+            <div class="mal5">{{ item.goods.name }}</div>
+            <div
+              v-for="(item, index1) in item.goods.sku"
+              :key="index1"
+              class="mal5"
+            >
+              {{ item.checked }}
+            </div>
+          </div>
+          <div class="flex1 flex-sba">
+            <div>{{ `${item.goods.presentPrice}x${item.count}` }}</div>
+            <div class="Themecolor">
+              {{ item.goods.presentPrice * item.count }}元
+            </div>
+          </div>
+        </div>
+      </div>
+      <Modal v-model="modal" title="添加收货地址" width="640">
+        <Form ref="formInline" :model="formInline" :rules="ruleInline">
+          <div class="flex-ja">
+            <FormItem prop="username" class="margin-r20">
+              <Input
+                type="text"
+                v-model="formInline.username"
+                placeholder="姓名"
+                style="width: 295px"
+              >
+              </Input>
+            </FormItem>
+            <FormItem prop="mobile">
+              <Input
+                v-model="formInline.mobile"
+                placeholder="手机号"
+                style="width: 295px"
+              >
+              </Input>
+            </FormItem>
+          </div>
+          <FormItem prop="address">
+            <Cascader
+              :data="area"
+              v-model="formInline.address"
+              placeholder="请选择省 / 市 / 区"
+            ></Cascader>
+          </FormItem>
+          <FormItem prop="detailAddress">
+            <Input
+              v-model="formInline.detailAddress"
+              type="textarea"
+              placeholder="详细地址"
+            />
+          </FormItem>
+          <FormItem prop="descr">
+            <Input v-model="formInline.descr" placeholder="地址标签" />
+          </FormItem>
+        </Form>
+        <div slot="footer" class="flex-ja color3f">
+          <div class="sure flex-ja mar5" @click="determine('formInline')">
+            确定
+          </div>
+          <div class="cancel flex-ja mal5">取消</div>
+        </div>
+      </Modal>
+    </div>
+  </div>
+</template>
+
+<script>
+import CatrTop from "../../components/catrTop/catrTop.vue";
+import city from "../../lib/city";
+export default {
+  name: "",
+  props: {},
+  data() {
+    let lvaliMobile = (rule, value, callback) => {
+      if (value) {
+        if (
+          /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/.test(
+            value
+          )
+        ) {
+          callback();
+          console.log(1234);
+        } else {
+          return callback(new Error("请输入正确电话"));
+        }
+      } else {
+        return callback(new Error("手机号不能为空"));
+      }
+    };
+    return {
+      show: false,
+      goods: [],
+      modal: false,
+      area: city,
+      formInline: {
+        user_id: JSON.parse(localStorage.getItem("user")),
+        username: "",
+        mobile: "",
+        address: [],
+        isDefault: false,
+        descr: "",
+        detailAddress: "",
+      },
+      ruleInline: {
+        username: [
+          {
+            required: true,
+            message: "用户名不能为空",
+            trigger: "blur",
+          },
+        ],
+        mobile: [{ validator: lvaliMobile, trigger: "blur" }],
+        address: [
+          {
+            transform: (value) => String(value),
+            required: true,
+            message: "地址不能为空",
+            trigger: "blur",
+          },
+        ],
+        detailAddress: [
+          {
+            required: true,
+            message: "详细地址不能为空",
+            trigger: "blur",
+          },
+        ],
+      },
+    };
+  },
+  components: { CatrTop },
+  methods: {
+    //   显示修改按钮
+    mouseenter() {
+      this.show = true;
+    },
+    mouseleave() {
+      this.show = false;
+    },
+    // 新增收货地址
+    add() {
+      this.modal = true;
+    },
+    // 确定按钮
+    determine(name) {
+      this.$refs.formInline.validate((valid) => {
+        if (valid) {
+          console.log(this.formInline);
+        }
+      });
+    },
+  },
+  mounted() {
+    this.goods = JSON.parse(localStorage.getItem("goods"));
+  },
+  computed: {},
+  watch: {},
+};
+</script>
+
+<style lang='scss' scoped>
+.container {
+  padding: 48px 20px 0 20px;
+}
+.box {
+  padding: 40px 0 60px;
+}
+.address {
+  width: 268px;
+  height: 178px;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  position: relative;
+  margin-right: 17px;
+  margin-bottom: 20px;
+}
+.name {
+  padding: 15px 24px 0;
+}
+.edit {
+  position: absolute;
+  right: 24px;
+  bottom: 10px;
+}
+.goods {
+  height: 60px;
+}
+.imgcover {
+  width: 30px;
+  height: 30px;
+}
+.address-item {
+  width: 268px;
+  height: 178px;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  position: relative;
+  margin-right: 17px;
+  margin-bottom: 20px;
+  vertical-align: top;
+  -webkit-transition: all 0.4s ease;
+  transition: all 0.4s ease;
+}
+.sure {
+  width: 160px;
+  height: 40px;
+  background: #ff6700;
+}
+.cancel {
+  width: 160px;
+  height: 40px;
+  background: #b0b0b0;
+}
+</style>
