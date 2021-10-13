@@ -1,5 +1,8 @@
 <template>
   <div class="flex heivh100">
+    <div>
+      张杨修改
+    </div>
     <div class="left"><img src="../../assets/login.jpg" class="img100" /></div>
     <div class="wi100">
       <div class="heads flex-sba">
